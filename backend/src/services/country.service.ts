@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { api } from '../configs/axios.config';
 import { COUNTRY_INFO_API_URL, COUNTRY_LIST_API_URL } from '../configs/general.config';
 import type {
@@ -35,34 +36,37 @@ export async function getBorderCountriesFromCountryCode({
 }
 
 export async function getPopulationCountry({ countryName }: { countryName: string }) {
-  const response = await api(COUNTRY_INFO_API_URL).post<PopulationCountry>(
-    '/countries/population',
-    {
-      country: countryName.toLowerCase(),
-    },
-  );
+  try {
+    const response = await api(COUNTRY_INFO_API_URL).post<PopulationCountry | null>(
+      '/countries/population',
+      {
+        country: countryName.toLowerCase(),
+      },
+    );
 
-  const population = response.data;
-
-  if (response.status === 404) {
-    throw new Error('Not found population for this country');
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return null;
+    }
   }
-
-  return population;
 }
 
 export async function getCountryFlag({ countryName }: { countryName: string }) {
-  const response = await api(COUNTRY_INFO_API_URL).post<CountryFlag>('/countries/flag/images', {
-    country: countryName.toLowerCase(),
-  });
+  try {
+    const response = await api(COUNTRY_INFO_API_URL).post<CountryFlag | null>(
+      '/countries/flag/images',
+      {
+        country: countryName.toLowerCase(),
+      },
+    );
 
-  const flag = response.data;
-
-  if (response.status === 404) {
-    throw new Error('Not found flag for this country');
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return null;
+    }
   }
-
-  return flag.data;
 }
 
 export async function getCompleteCountryInfo({
@@ -75,6 +79,14 @@ export async function getCompleteCountryInfo({
   const countryPopulation = await getPopulationCountry({ countryName });
   const countryFlag = await getCountryFlag({ countryName });
   const borderCountries = await getBorderCountriesFromCountryCode({ countryCode });
+
+  if (!countryPopulation) {
+    return {
+      borderCountries,
+      countryPopulation,
+      countryFlag,
+    };
+  }
 
   const isSameCountry = borderCountries.commonName.includes(countryPopulation.data.country);
 
