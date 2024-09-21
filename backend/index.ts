@@ -26,10 +26,22 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/country', countryRouter);
 
-app
-  .listen(PORT, () => {
-    console.log('Server running at PORT:', PORT);
-  })
-  .on('error', (error) => {
-    throw new Error(error.message);
+const startServer = (port: number) => {
+  const server = app.listen(port, () => {
+    console.log(`Server running at PORT: ${port}`);
   });
+
+  server.on('error', (error: any) => {
+    if (error.code === 'EADDRINUSE') {
+      const nextPort = port + 1;
+
+      console.error(`Port ${port} is already in use, trying another port...`);
+
+      startServer(nextPort);
+    } else {
+      throw new Error(error.message);
+    }
+  });
+};
+
+startServer(Number(PORT));
