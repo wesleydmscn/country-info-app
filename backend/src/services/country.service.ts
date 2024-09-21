@@ -1,6 +1,9 @@
 import { AxiosError } from 'axios';
 import { api } from '../configs/axios.config';
-import { COUNTRY_INFO_API_URL, COUNTRY_LIST_API_URL } from '../configs/general.config';
+import {
+  COUNTRY_INFO_API_URL,
+  COUNTRY_LIST_API_URL,
+} from '../configs/general.config';
 import type {
   BorderCountry,
   Country,
@@ -9,7 +12,9 @@ import type {
 } from '../models/country.model';
 
 export async function getAvailableCountries() {
-  const response = await api(COUNTRY_LIST_API_URL).get<Country[]>('/AvailableCountries');
+  const response = await api(COUNTRY_LIST_API_URL).get<Country[]>(
+    '/AvailableCountries'
+  );
   const countries = response.data;
 
   return {
@@ -23,7 +28,7 @@ export async function getBorderCountriesFromCountryCode({
   countryCode: string;
 }) {
   const response = await api(COUNTRY_LIST_API_URL).get<BorderCountry>(
-    `/CountryInfo/${countryCode}`,
+    `/CountryInfo/${countryCode}`
   );
 
   const borderCountries = response.data;
@@ -35,14 +40,17 @@ export async function getBorderCountriesFromCountryCode({
   return borderCountries;
 }
 
-export async function getPopulationCountry({ countryName }: { countryName: string }) {
+export async function getPopulationCountry({
+  countryName,
+}: {
+  countryName: string;
+}) {
   try {
-    const response = await api(COUNTRY_INFO_API_URL).post<PopulationCountry | null>(
-      '/countries/population',
-      {
-        country: countryName.toLowerCase(),
-      },
-    );
+    const response = await api(
+      COUNTRY_INFO_API_URL
+    ).post<PopulationCountry | null>('/countries/population', {
+      country: countryName.toLowerCase(),
+    });
 
     return response.data;
   } catch (error) {
@@ -58,7 +66,7 @@ export async function getCountryFlag({ countryName }: { countryName: string }) {
       '/countries/flag/images',
       {
         country: countryName.toLowerCase(),
-      },
+      }
     );
 
     return response.data;
@@ -78,7 +86,9 @@ export async function getCompleteCountryInfo({
 }) {
   const countryPopulation = await getPopulationCountry({ countryName });
   const countryFlag = await getCountryFlag({ countryName });
-  const borderCountries = await getBorderCountriesFromCountryCode({ countryCode });
+  const borderCountries = await getBorderCountriesFromCountryCode({
+    countryCode,
+  });
 
   if (!countryPopulation) {
     return {
@@ -88,10 +98,14 @@ export async function getCompleteCountryInfo({
     };
   }
 
-  const isSameCountry = borderCountries.commonName.includes(countryPopulation.data.country);
+  const isSameCountry = borderCountries.commonName.includes(
+    countryPopulation.data.country
+  );
 
   if (!isSameCountry) {
-    throw new Error('countryCode and countryName must refer to the same country');
+    throw new Error(
+      'countryCode and countryName must refer to the same country'
+    );
   }
 
   return {

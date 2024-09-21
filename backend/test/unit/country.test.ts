@@ -3,7 +3,9 @@ import axios from 'axios';
 
 dotenv.config();
 
-const api = axios.create({ baseURL: `http://localhost:${process.env.PORT}/country` });
+const api = axios.create({
+  baseURL: `http://localhost:${process.env.PORT}/country`,
+});
 
 describe('Country Tests', () => {
   it('Return available countries', async () => {

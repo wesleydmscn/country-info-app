@@ -13,7 +13,7 @@ export const getAvailableCountries: RequestHandler = async (req, res) => {
 
 export const getCountryInfo = async (
   req: CustomRequest<{ countryCode: string; countryName: string }>,
-  res: Response,
+  res: Response
 ) => {
   const { countryCode, countryName } = req.body;
 
